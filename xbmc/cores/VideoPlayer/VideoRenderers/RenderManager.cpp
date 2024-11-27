@@ -1181,12 +1181,27 @@ void CRenderManager::PrepareNextRender()
                      static_cast<double>(CServiceBroker::GetWinSystem()->GetGfxContext().GetFPS()) *
                      DVD_TIME_BASE;
 
+  // Is NoOfBuffers() actually used for anything in the AMLogic windows implementation !?
+  // GetWinSystem()->GetGfxContext().GetDisplayLatency() :: -1 :> latency = (CServiceBroker::GetWinSystem()->NoOfBuffers() + 1) / GetFPS() * 1000.0f;
+
+  // Values before change to allow exact refresh rate.
+  // 24 fractional → 0.166    3+1 / 23.9 
+  // 25 → 0.080               3+1 / 50 (double 25)
+  // 30 fractional → 0.066    3+1 / 59.8 (double 29.9)
+  // 30 → 0.066               3+1 / 60 (double 30)
+  // 60 fractional → 0.066    3+1 / 60
+  
+  // GetWinSystem()->GetFrameLatencyAdjustment() :: 0 :> 0;
+
+  // No latency tweak and no (audio) video delay - then will be the values above (as initially observered)
+  
   m_displayLatency = DVD_MSEC_TO_TIME(
       m_latencyTweak +
       static_cast<double>(CServiceBroker::GetWinSystem()->GetGfxContext().GetDisplayLatency()) -
       m_videoDelay -
       static_cast<double>(CServiceBroker::GetWinSystem()->GetFrameLatencyAdjustment()));
 
+  // Adjust the pts.
   double renderPts = frameOnScreen + m_displayLatency;
 
   double nextFramePts = m_Queue[m_queued.front()].pts;

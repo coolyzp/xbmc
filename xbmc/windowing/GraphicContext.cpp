@@ -957,7 +957,8 @@ float CGraphicContext::GetDisplayLatency() const
   if (latency < 0.0f)
   {
     // fallback
-    latency = (CServiceBroker::GetWinSystem()->NoOfBuffers() + 1) / GetFPS() * 1000.0f;
+    latency = 1 / GetFPS() * 1000.0f; // Fallback for AMlogic - don't think we have buffers in use in this case.
+    //latency = (CServiceBroker::GetWinSystem()->NoOfBuffers() + 1) / GetFPS() * 1000.0f;
   }
 
   return latency;
